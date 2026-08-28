@@ -29,7 +29,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col">
 
-    <!-- Top Header Navigation -->
+    <!-- Header / Navigasi Atas -->
     <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -41,7 +41,7 @@
                     <p class="text-xs text-slate-400">Hasil Perolehan Suara Real-time</p>
                 </div>
             </div>
-            <!-- Live Sync Connection Control -->
+            <!-- Live Sync Kontrol Google Sheet -->
             <div class="flex items-center space-x-3">
                 <div id="sync-badge" class="hidden sm:flex items-center space-x-2 text-xs bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -66,7 +66,7 @@
                 <button onclick="toggleConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed">
-                Masukkan <strong>Web App URL</strong> yang didapat setelah melakukan <em>Deploy as Web App</em> pada Apps Script (`Code.gs`) agar data dari Kolom C (OSIS) & Kolom D (MPK) dihitung secara real-time.
+                Masukkan <strong>Web App URL</strong> dari Apps Script (`Code.gs`) agar data dari Kolom C (OSIS) & Kolom D (MPK) dihitung secara otomatis dan real-time.
             </p>
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1">Web App URL Google Apps Script:</label>
@@ -81,7 +81,7 @@
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
-        <!-- DASHBOARD QUICK COUNT ONLY -->
+        <!-- DASHBOARD UTAMA -->
         <section id="sec-dashboard" class="space-y-6">
             <!-- Summary Metric Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -89,7 +89,7 @@
                     <div>
                         <p class="text-xs font-semibold uppercase text-slate-400">Total Suara OSIS</p>
                         <h3 id="stat-total-osis" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
-                        <p class="text-xs text-slate-500 mt-1">Suara sah masuk</p>
+                        <p class="text-xs text-slate-500 mt-1">Suara sah masuk (Kolom C)</p>
                     </div>
                     <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-user-tie"></i>
@@ -99,7 +99,7 @@
                     <div>
                         <p class="text-xs font-semibold uppercase text-slate-400">Total Suara MPK</p>
                         <h3 id="stat-total-mpk" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
-                        <p class="text-xs text-slate-500 mt-1">Suara sah masuk</p>
+                        <p class="text-xs text-slate-500 mt-1">Suara sah masuk (Kolom D)</p>
                     </div>
                     <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-users"></i>
@@ -109,7 +109,7 @@
                     <div>
                         <p class="text-xs font-semibold uppercase text-slate-400">Unggul Sementara OSIS</p>
                         <h3 id="stat-lead-osis" class="text-lg font-bold text-sky-700 mt-1 truncate max-w-[150px]">-</h3>
-                        <p id="stat-lead-osis-pct" class="text-xs text-slate-500 mt-1">0%</p>
+                        <p id="stat-lead-osis-pct" class="text-xs text-slate-500 mt-1">0% (0 Suara)</p>
                     </div>
                     <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-trophy"></i>
@@ -119,7 +119,7 @@
                     <div>
                         <p class="text-xs font-semibold uppercase text-slate-400">Unggul Sementara MPK</p>
                         <h3 id="stat-lead-mpk" class="text-lg font-bold text-emerald-700 mt-1 truncate max-w-[150px]">-</h3>
-                        <p id="stat-lead-mpk-pct" class="text-xs text-slate-500 mt-1">0%</p>
+                        <p id="stat-lead-mpk-pct" class="text-xs text-slate-500 mt-1">0% (0 Suara)</p>
                     </div>
                     <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
                         <i class="fa-solid fa-award"></i>
@@ -127,9 +127,9 @@
                 </div>
             </div>
 
-            <!-- Charts & Details Grid -->
+            <!-- Grid Grafik & List Kartu Kandidat -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- OSIS Section -->
+                <!-- Seksi OSIS -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b pb-3 border-slate-100">
                         <div class="flex items-center space-x-2">
@@ -144,11 +144,11 @@
                     </div>
 
                     <div id="list-osis-bars" class="space-y-3 pt-2">
-                        <!-- Dynamic Candidate Progress Bars -->
+                        <!-- Kartu Paslon OSIS Dynamic -->
                     </div>
                 </div>
 
-                <!-- MPK Section -->
+                <!-- Seksi MPK -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b pb-3 border-slate-100">
                         <div class="flex items-center space-x-2">
@@ -163,7 +163,7 @@
                     </div>
 
                     <div id="list-mpk-bars" class="space-y-3 pt-2">
-                        <!-- Dynamic Candidate Progress Bars -->
+                        <!-- Kartu Paslon MPK Dynamic -->
                     </div>
                 </div>
             </div>
@@ -171,7 +171,7 @@
     </main>
 
     <script>
-        // App State (Data Tampilan)
+        // State Tampilan Aplikasi
         let state = {
             webAppUrl: localStorage.getItem('qc_web_app_url') || '',
             candidates: {
@@ -232,7 +232,7 @@
                 const result = await res.json();
 
                 if (result.status === "success" && result.data) {
-                    // Update Suara OSIS dari Google Sheets
+                    // Update Suara OSIS dari Google Sheets (Kolom C)
                     if (result.data.osis) {
                         result.data.osis.forEach(item => {
                             const match = state.candidates.osis.find(c => c.id === item.id);
@@ -240,7 +240,7 @@
                         });
                     }
 
-                    // Update Suara MPK dari Google Sheets
+                    // Update Suara MPK dari Google Sheets (Kolom D)
                     if (result.data.mpk) {
                         result.data.mpk.forEach(item => {
                             const match = state.candidates.mpk.find(c => c.id === item.id);
@@ -267,23 +267,29 @@
             document.getElementById('stat-total-osis').innerText = totalOsis.toLocaleString('id-ID');
             document.getElementById('stat-total-mpk').innerText = totalMpk.toLocaleString('id-ID');
 
-            // Unggul Sementara OSIS
+            // Kalkulasi Unggul Sementara OSIS (misal: 83.3% (5 Suara))
             const leadOsis = [...state.candidates.osis].sort((a,b) => b.suara - a.suara)[0];
-            if (leadOsis && totalOsis > 0) {
+            if (leadOsis && totalOsis > 0 && leadOsis.suara > 0) {
                 const pct = ((leadOsis.suara / totalOsis) * 100).toFixed(1);
                 document.getElementById('stat-lead-osis').innerText = leadOsis.nama;
                 document.getElementById('stat-lead-osis-pct').innerText = `${pct}% (${leadOsis.suara} Suara)`;
+            } else {
+                document.getElementById('stat-lead-osis').innerText = "-";
+                document.getElementById('stat-lead-osis-pct').innerText = "0% (0 Suara)";
             }
 
-            // Unggul Sementara MPK
+            // Kalkulasi Unggul Sementara MPK (misal: 50.0% (3 Suara))
             const leadMpk = [...state.candidates.mpk].sort((a,b) => b.suara - a.suara)[0];
-            if (leadMpk && totalMpk > 0) {
+            if (leadMpk && totalMpk > 0 && leadMpk.suara > 0) {
                 const pct = ((leadMpk.suara / totalMpk) * 100).toFixed(1);
                 document.getElementById('stat-lead-mpk').innerText = leadMpk.nama;
                 document.getElementById('stat-lead-mpk-pct').innerText = `${pct}% (${leadMpk.suara} Suara)`;
+            } else {
+                document.getElementById('stat-lead-mpk').innerText = "-";
+                document.getElementById('stat-lead-mpk-pct').innerText = "0% (0 Suara)";
             }
 
-            // Progress Bar OSIS
+            // Kartu Paslon OSIS
             const osisBarsContainer = document.getElementById('list-osis-bars');
             osisBarsContainer.innerHTML = '';
             state.candidates.osis.forEach(c => {
@@ -306,7 +312,7 @@
                 `;
             });
 
-            // Progress Bar MPK
+            // Kartu Paslon MPK
             const mpkBarsContainer = document.getElementById('list-mpk-bars');
             mpkBarsContainer.innerHTML = '';
             state.candidates.mpk.forEach(c => {
