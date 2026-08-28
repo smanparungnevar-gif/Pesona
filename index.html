@@ -41,8 +41,44 @@
                     <p class="text-xs text-slate-400">Hasil Perolehan Suara Real-time</p>
                 </div>
             </div>
+            <!-- Live Sync Connection Control -->
+            <div class="flex items-center space-x-3">
+                <div id="sync-badge" class="hidden sm:flex items-center space-x-2 text-xs bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Live Sync Google Sheet</span>
+                </div>
+                <button onclick="toggleConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-link text-sky-400"></i>
+                    <span>Hubungkan Sheet</span>
+                </button>
+            </div>
         </div>
     </header>
+
+    <!-- Modal Konfigurasi URL Web App -->
+    <div id="modal-config" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3 border-slate-100">
+                <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                    <span>Koneksi Google Spreadsheet</span>
+                </h3>
+                <button onclick="toggleConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Masukkan <strong>Web App URL</strong> yang didapat setelah melakukan <em>Deploy as Web App</em> pada Apps Script (`Code.gs`) agar data dari Kolom C (OSIS) & Kolom D (MPK) dihitung secara real-time.
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Web App URL Google Apps Script:</label>
+                <input type="text" id="input-webapp-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="saveWebAppUrl()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 rounded-xl transition">
+                    Simpan & Sync Real-time
+                </button>
+            </div>
+        </div>
+    </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
         <!-- DASHBOARD QUICK COUNT ONLY -->
@@ -137,26 +173,87 @@
     <script>
         // App State (Data Tampilan)
         let state = {
+            webAppUrl: localStorage.getItem('qc_web_app_url') || '',
             candidates: {
                 osis: [
-                    { id: 1, tag: "OSIS #1", nama: "Robert Cornellius Sitorus", suara: 145, foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" },
-                    { id: 2, tag: "OSIS #2", nama: "Elsya Althafunnisa", suara: 162, foto: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" },
-                    { id: 3, tag: "OSIS #3", nama: "Talita Arkana Shaki", suara: 98, foto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80" }
+                    { id: 1, tag: "OSIS #1", nama: "Robert Cornellius Sitorus", suara: 0, foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" },
+                    { id: 2, tag: "OSIS #2", nama: "Elsya Althafunnisa", suara: 0, foto: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" },
+                    { id: 3, tag: "OSIS #3", nama: "Talita Arkana Shaki", suara: 0, foto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80" }
                 ],
                 mpk: [
-                    { id: 1, tag: "MPK #1", nama: "Alvaro Arka Wijaya", suara: 90, foto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80" },
-                    { id: 2, tag: "MPK #2", nama: "Tricia Gabriel", suara: 148, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
-                    { id: 3, tag: "MPK #3", nama: "Dona Septiana Putri", suara: 85, foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" }
+                    { id: 1, tag: "MPK #1", nama: "Alvaro Arka Wijaya", suara: 0, foto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80" },
+                    { id: 2, tag: "MPK #2", nama: "Tricia Gabriel", suara: 0, foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
+                    { id: 3, tag: "MPK #3", nama: "Dona Septiana Putri", suara: 0, foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" }
                 ]
             }
         };
 
         let chartOsisInstance = null;
         let chartMpkInstance = null;
+        let pollTimer = null;
 
         window.onload = function() {
-            renderDashboard();
+            if (state.webAppUrl) {
+                document.getElementById('input-webapp-url').value = state.webAppUrl;
+                document.getElementById('sync-badge').classList.remove('hidden');
+                fetchRealtimeData();
+                pollTimer = setInterval(fetchRealtimeData, 4000);
+            } else {
+                renderDashboard();
+            }
         };
+
+        function toggleConfigModal() {
+            const modal = document.getElementById('modal-config');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveWebAppUrl() {
+            const url = document.getElementById('input-webapp-url').value.trim();
+            if (!url) {
+                alert("Silakan masukkan URL Web App Google Apps Script!");
+                return;
+            }
+            state.webAppUrl = url;
+            localStorage.setItem('qc_web_app_url', url);
+            toggleConfigModal();
+            document.getElementById('sync-badge').classList.remove('hidden');
+            
+            if (pollTimer) clearInterval(pollTimer);
+            fetchRealtimeData();
+            pollTimer = setInterval(fetchRealtimeData, 4000);
+        }
+
+        async function fetchRealtimeData() {
+            if (!state.webAppUrl) return;
+
+            try {
+                const res = await fetch(`${state.webAppUrl}?action=getData`);
+                const result = await res.json();
+
+                if (result.status === "success" && result.data) {
+                    // Update Suara OSIS dari Google Sheets
+                    if (result.data.osis) {
+                        result.data.osis.forEach(item => {
+                            const match = state.candidates.osis.find(c => c.id === item.id);
+                            if (match) match.suara = item.suara || 0;
+                        });
+                    }
+
+                    // Update Suara MPK dari Google Sheets
+                    if (result.data.mpk) {
+                        result.data.mpk.forEach(item => {
+                            const match = state.candidates.mpk.find(c => c.id === item.id);
+                            if (match) match.suara = item.suara || 0;
+                        });
+                    }
+
+                    renderDashboard();
+                }
+            } catch (err) {
+                console.warn("Gagal memperbarui data dari Google Sheets:", err);
+            }
+        }
 
         function renderDashboard() {
             renderMetrics();
