@@ -37,7 +37,7 @@
                     <i class="fa-solid fa-chart-column text-sky-300"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">Quick Count OSIS & MPK</h1>
+                    <h1 class="font-bold text-lg leading-tight">Quick Count OSIS & MPK SMAN 1 PARUNG</h1>
                     <p class="text-xs text-slate-400">Hasil Perolehan Suara Real-time</p>
                 </div>
             </div>
@@ -45,11 +45,11 @@
             <div class="flex items-center space-x-3">
                 <div id="sync-badge" class="hidden sm:flex items-center space-x-2 text-xs bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Live Sync Google Sheet</span>
+                    <span>Live</span>
                 </div>
                 <button onclick="toggleConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 flex items-center space-x-1.5 transition">
                     <i class="fa-solid fa-link text-sky-400"></i>
-                    <span>Hubungkan Sheet</span>
+                    <span>Hubungkan Real Time</span>
                 </button>
             </div>
         </div>
@@ -171,9 +171,21 @@
     </main>
 
     <script>
+        // =====================================================================
+        // KONFIGURASI WEB APP URL (WAJIB DIISI SEBELUM DEPLOY KE GITHUB/VERCEL)
+        // -----------------------------------------------------------------
+        // 1. Deploy Code.gs sebagai Web App (Deploy -> New deployment -> Web app
+        //    -> Execute as: Me, Who has access: Anyone)
+        // 2. Copy URL yang berakhiran "/exec"
+        // 3. Tempelkan di bawah ini menggantikan tanda kutip kosong
+        // Contoh: "https://script.google.com/macros/s/AKfycbz.../exec"
+        // =====================================================================
+        const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwKdLU2_IrllkEQ_BXJKTjI_miz2IKHwE3ci8Rlbt0_2KO9-LoYjjSjRRzE_wUB4Dwt/exec";
+
         // State Tampilan Aplikasi
         let state = {
-            webAppUrl: localStorage.getItem('qc_web_app_url') || '',
+            // Prioritas: URL hardcode di atas -> fallback ke localStorage (untuk override manual/testing)
+            webAppUrl: WEBAPP_URL || localStorage.getItem('qc_web_app_url') || '',
             candidates: {
                 osis: [
                     { id: 1, tag: "OSIS #1", nama: "Robert Cornellius Sitorus", suara: 0, foto: "https://6a90e180fbbe2019f0961ddf.imgix.net/sandbox/Robert%20Cornellius%20Sitorus%20.jpeg" },
@@ -200,6 +212,7 @@
                 pollTimer = setInterval(fetchRealtimeData, 4000);
             } else {
                 renderDashboard();
+                console.warn("WEBAPP_URL belum diisi di index.html. Klik 'Hubungkan Real Time' atau isi konstanta WEBAPP_URL di dalam script.");
             }
         };
 
@@ -289,19 +302,20 @@
                 document.getElementById('stat-lead-mpk-pct').innerText = "0% (0 Suara)";
             }
 
-            // Kartu Paslon OSIS
+            // Kartu Paslon OSIS (diurutkan dari persentase tertinggi -> terendah, peringkat berubah otomatis)
             const osisBarsContainer = document.getElementById('list-osis-bars');
             osisBarsContainer.innerHTML = '';
-            state.candidates.osis.forEach(c => {
+            const rankedOsis = [...state.candidates.osis].sort((a, b) => b.suara - a.suara);
+            rankedOsis.forEach((c, idx) => {
                 const pct = totalOsis > 0 ? ((c.suara / totalOsis) * 100).toFixed(1) : "0.0";
                 osisBarsContainer.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-bold flex items-center justify-center">${idx + 1}</span>
                         <img src="${c.foto}" alt="${c.nama}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover bg-blue-600 flex-shrink-0 border border-slate-100" onerror="this.src='https://placehold.co/100x100/e2e8f0/475569?text=Foto'">
                         <div class="flex-1 min-w-0 space-y-1">
                             <span class="inline-block px-2.5 py-0.5 bg-blue-100 text-blue-600 rounded-full text-xs font-bold tracking-wide">${c.tag || 'OSIS #' + c.id}</span>
                             <h3 class="font-bold text-slate-900 text-base sm:text-lg truncate leading-tight">${c.nama}</h3>
-                            <div class="flex justify-between items-center text-sm pt-0.5">
-                                <span class="text-slate-500 font-medium">${c.suara} Suara</span>
+                            <div class="flex justify-end items-center text-sm pt-0.5">
                                 <span class="font-bold text-blue-600 text-base sm:text-lg">${pct}%</span>
                             </div>
                             <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden mt-1">
@@ -312,19 +326,20 @@
                 `;
             });
 
-            // Kartu Paslon MPK
+            // Kartu Paslon MPK (diurutkan dari persentase tertinggi -> terendah, peringkat berubah otomatis)
             const mpkBarsContainer = document.getElementById('list-mpk-bars');
             mpkBarsContainer.innerHTML = '';
-            state.candidates.mpk.forEach(c => {
+            const rankedMpk = [...state.candidates.mpk].sort((a, b) => b.suara - a.suara);
+            rankedMpk.forEach((c, idx) => {
                 const pct = totalMpk > 0 ? ((c.suara / totalMpk) * 100).toFixed(1) : "0.0";
                 mpkBarsContainer.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-bold flex items-center justify-center">${idx + 1}</span>
                         <img src="${c.foto}" alt="${c.nama}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover bg-emerald-600 flex-shrink-0 border border-slate-100" onerror="this.src='https://placehold.co/100x100/e2e8f0/475569?text=Foto'">
                         <div class="flex-1 min-w-0 space-y-1">
                             <span class="inline-block px-2.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold tracking-wide">${c.tag || 'MPK #' + c.id}</span>
                             <h3 class="font-bold text-slate-900 text-base sm:text-lg truncate leading-tight">${c.nama}</h3>
-                            <div class="flex justify-between items-center text-sm pt-0.5">
-                                <span class="text-slate-500 font-medium">${c.suara} Suara</span>
+                            <div class="flex justify-end items-center text-sm pt-0.5">
                                 <span class="font-bold text-emerald-600 text-base sm:text-lg">${pct}%</span>
                             </div>
                             <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden mt-1">
